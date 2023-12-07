@@ -1,0 +1,42 @@
+async function createTop3TeamsProcedure() {
+  const stored_query = `
+    CREATE PROCEDURE GetTop3Teams()
+    BEGIN
+        -- Get the top 3 teams by total runs for the specified year
+        SELECT t.Teams, SUM(c.RunScore) AS TotalRuns
+        FROM team t
+        JOIN batting_bowling_combined c ON t.Teams = c.TeamName
+        WHERE t.Year = 2023 -- Specify the desired season (e.g., 2023)
+        GROUP BY t.Teams
+        ORDER BY TotalRuns DESC
+        LIMIT 3;
+    END;
+  `;
+
+  try {
+    await connection.promise().query(stored_query);
+    console.log('Top 3 teams stored procedure created successfully!');
+  } catch (error) {
+    console.error('Error creating top 3 teams stored procedure:', error);
+  }
+}
+
+// trigger function
+async function createTop3TeamsTrigger() {
+  const trigger_query = `
+    CREATE TRIGGER Top3TeamsTrigger
+    AFTER INSERT ON batting_bowling_combined
+    FOR EACH ROW
+    BEGIN
+        -- Call the stored procedure to update top 3 teams
+        CALL GetTop3Teams();
+    END;
+  `;
+
+  try {
+    await connection.promise().query(trigger_query);
+    console.log('Top 3 teams trigger created successfully!');
+  } catch (error) {
+    console.error('Error creating top 3 teams trigger:', error);
+  }
+}
