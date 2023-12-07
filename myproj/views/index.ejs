@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #444;
+      color: #fff;
+      padding: 0.5em;
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li {
+      display: inline-block;
+      margin-right: 20px;
+    }
+
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    section {
+      padding: 20px;
+    }
+
+    footer {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+  </style>
+
+</head>
+<body>
+  <header>
+    <h1><%= title %></h1>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/teams">Teams</a></li>
+      <li><a href="/athlete">Athlete</a></li>
+      <li><a href="/players">Players</a></li>
+      <li><a href="/dashboard">TeamRanking</a></li>
+      <li><a href="/dashboard2">Medals</a></li>
+      <li><a href="/dashboard3">Avgs</a></li>
+      <li style="float: right;"><a href="/login">Login</a></li>
+      <li style="float: right;"><a href="/logout">Logout</a></li>
+      <li style="float: right;"><a href="/create-account">Create an Account</a></li>
+      <li style="float: right;"><a href="/delete-account">Delete Account</a></li>
+    </ul>
+  </nav>
+<section>
+  <p>
+    "SportsUniverse: Your Ultimate Sports Companion" is a comprehensive web-based application
+    that seamlessly integrates data from Kaggle's "2021 Olympics in Tokyo" and "Indian Premier
+    League (IPL) - All Seasons" datasets. Designed for sports enthusiasts, the platform allows
+    users to create personalized accounts and offers a dynamic dashboard for convenient access
+    to global leagues such as the Olympics and IPL.
+  </p>
+  <p>
+    Users can explore athlete and team profiles, delve into top players' statistics, and stay
+    updated with real-time medal tallies and IPL data. The application features a captivating
+    stats visualization page, presenting graphical representations of gender distribution,
+    medal counts, and standout performing countries.
+  </p>
+  <p>
+    With a primary focus on the dashboard, SportsUniverse simplifies the sports experience by
+    centralizing information, providing a one-stop platform for fans to stay connected and
+    engaged. The platform's goal is to address the challenges of scattered sports information,
+    offering an immersive sports hub tailored to user preferences, making it the go-to
+    destination for all things sports.
+  </p>
+</section>
+
+
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> SportsUniverse</p>
+  </footer>
+</body>
+</html>

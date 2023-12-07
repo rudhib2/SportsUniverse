@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Players</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 80%;
+      margin: auto;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    form button {
+      background-color: transparent;
+      color: black; 
+      border: none;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      text-decoration: underline; 
+    }
+
+    td:first-child {
+      font-size: inherit; 
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: left;
+    }
+
+    li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li a:hover {
+      background-color: #111;
+    }
+
+    .search-bar {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+    }
+
+    input[type="submit"] {
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .search-results {
+      margin-top: 20px;
+      color: black;
+    }
+
+    .search-results h2 {
+      text-align: center;
+    }
+
+    .search-results ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .search-results li {
+      margin-bottom: 10px;
+    }
+    .search-results button {
+      background-color: transparent;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .search-results button:hover {
+      text-decoration: none; 
+    }
+    
+    .search-and-add {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px; 
+    }
+
+    .add-player-button-container {
+      margin-top: 10px; 
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/teams">Teams</a></li>
+      <li><a href="/athlete">Athletes</a></li>
+      <li><a href="/players">Players</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <header>
+    <h1>All Players</h1>
+  </header>
+
+ <!-- Search Bar and Add Player Button -->
+ <div class="search-and-add">
+   <div class="search-bar">
+     <form action="/players" method="get">
+       <input type="text" name="search" placeholder="Search by name">
+       <input type="submit" value="Search">
+     </form>
+   </div>
+   <div class="add-player-button-container">
+     <a href="/add_player" class="add-player-button">Add Player</a>
+   </div>
+ </div>
+
+
+  <!-- Player List Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Player Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% players.forEach(player => { %>
+        <tr>
+          <td>
+            <form action="/player/<%= player.FullName %>" method="get">
+              <button type="submit"><%= player.FullName %></button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <div class="search-results">
+    <% if (searchResults && typeof searchResults !== 'undefined') { %>
+      <% if (searchResults.length > 0) { %>
+        <h2>Search Results for '<%= search %>'</h2>
+        <ul>
+          <% searchResults.forEach(result => { %>
+            <li>
+              <form action="/player/<%= result.FullName %>" method="get">
+                <button type="submit"><%= result.FullName %></button>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <p>No results found for '<%= search %>'</p>
+      <% } %>
+    <% } else { %>
+      <p>No results found for '<%= search %>'</p>
+    <% } %>
+  </div>
+
+
+</body>
+</html>

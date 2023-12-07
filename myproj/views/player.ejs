@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= player.FullName %> - Player Details</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 80%;
+      margin: auto;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: left;
+    }
+
+    li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li a:hover {
+      background-color: #111;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/teams">Teams</a></li>
+      <li><a href="/athlete">Athletes</a></li>
+      <li><a href="/players">Players</a></li>
+    </ul>
+  </nav>
+
+
+  <!-- Teams and Stats Table -->
+  <h2>Teams and Stats</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Team Name</th>
+        <th>Runs Scored</th>
+        <th>Wickets Taken</th>
+        <th>Strike Rate</th>
+        <th>Economy Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% teams.forEach(team => { %>
+        <tr>
+          <td><%= team.TeamName %></td>
+          <td><%= team.RunScore %></td>
+          <td><%= team.WicketsTaken %></td>
+          <td><%= team.StrikeRate %></td>
+          <td><%= team.EconomyRate %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+</body>
+</html>

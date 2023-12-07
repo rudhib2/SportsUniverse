@@ -1,0 +1,514 @@
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
+const mysql = require('mysql2');
+
+const app = express();
+
+let currentUser = null;
+let currPlayerID = 1104;
+// Set up MySQL connection
+const connection = mysql.createConnection({
+  host: '35.224.38.200',
+  user: 'root',
+  password: 'Ishanvi1234',
+  database: 'SportsUniverse2023'
+});
+
+connection.connect(err => {
+  if (err) {
+    console.error('Error connecting to the database:', err.stack);
+    return;
+  }
+  console.log('Connected to the database');
+});
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.render('index', { title: 'SportsUniverse: Your Ultimate Sports Companion' });
+});
+
+app.get('/athlete', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all athletes
+    connection.query('SELECT AthleteID, Name FROM athlete', (err, athletes) => {
+      if (err) throw err;
+      res.render('athletes1', { athletes, searchResults: [] });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT AthleteID, Name FROM athlete WHERE Name LIKE ?', [searchQuery], (err, searchResults) => {
+      if (err) throw err;
+      res.render('athletes1', { athletes: [], searchResults: searchResults || [] });
+    });
+  }
+});
+
+app.get('/athlete/:id', (req, res) => {
+  const athleteId = req.params.id;
+  console.log('Athlete ID:', athleteId);
+
+  // Fetch athlete details based on ID
+  connection.query('SELECT * FROM athlete WHERE AthleteID = ?', [athleteId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).send('Athlete not found');
+      return;
+    }
+
+    // Render athlete2.ejs with athlete details
+    res.render('athlete2', { athlete: result[0] }); // Pass the athlete object to the template
+  });
+});
+
+
+app.get('/players', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all distinct players
+    connection.query('SELECT DISTINCT FullName FROM batting_bowling_combined', (err, players) => {
+      if (err) throw err;
+      res.render('players', { players, searchResults: [], search });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT DISTINCT FullName FROM batting_bowling_combined WHERE FullName LIKE ?', [searchQuery], (err, searchResults) => {
+      if (err) throw err;
+      res.render('players', { players: [], searchResults: searchResults || [], search });
+    });
+  }
+});
+
+app.get('/player/:name', (req, res) => {
+  const playerName = req.params.name;
+
+  // Fetch all teams and stats for the selected player
+  connection.query('SELECT * FROM batting_bowling_combined WHERE FullName = ?', [playerName], (err, results) => {
+    if (err) throw err;
+
+    if (results.length === 0) {
+      res.status(404).send('Player not found');
+      return;
+    }
+
+    res.render('player', { player: results[0], teams: results });
+  });
+});
+
+
+app.get('/teams', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all teams with NOC and Discipline
+    connection.query('SELECT TeamID, NOC, Discipline FROM mytable', (err, teams) => {
+      if (err) throw err;
+      res.render('teams', { teams, searchResults: [] });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT TeamID, NOC, Discipline FROM mytable WHERE NOC LIKE ? OR Discipline LIKE ?', [searchQuery, searchQuery], (err, searchResults) => {
+    if (err) throw err;
+      res.render('teams', { teams: [], searchResults: searchResults || [] });
+    });
+  }
+});
+
+app.get('/team/:id', (req, res) => {
+  const teamId = req.params.id;
+
+  // Fetch all details for the selected team
+  connection.query('SELECT * FROM mytable WHERE TeamID = ?', [teamId], (err, results) => {
+    if (err) throw err;
+
+    if (results.length === 0) {
+      res.status(404).send('Team not found');
+      return;
+    }
+
+    res.render('team', { team: results[0] });
+  });
+});
+
+
+app.get('/home', (req, res) => {
+  res.redirect('http://35.209.213.54/');
+});
+
+
+// Example: Add favorite player for the authenticated user
+/*app.post('/add-favorite-player/:playerId', (req, res) => {
+  const username = req.user ? req.user.username : null;
+  const playerId = req.params.playerId;
+
+  // Check if the user is authenticated
+  if (!username) {
+    res.status(401).send('Unauthorized'); // Unauthorized if not authenticated
+    return;
+  }
+
+  // Save favorite player to the database
+  connection.query('INSERT INTO favo_player (user_id, fav_player) VALUES (?, ?)', [username, playerId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    res.redirect('/dashboard'); // Redirect to the user's dashboard or any other page
+  });
+});
+
+// Example: Retrieve favorite players for the authenticated user
+app.get('/favorite-players', (req, res) => {
+  const username = req.user ? req.user.username : null;
+
+  // Check if the user is authenticated
+  if (!username) {
+    res.status(401).send('Unauthorized'); // Unauthorized if not authenticated
+    return;
+  }
+
+  // Retrieve favorite players from the database
+  connection.query('SELECT * FROM favo_player WHERE user_id = ?', [username], (err, favoritePlayers) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    // Render a page with the favorite players
+    res.render('favorite-players', { favoritePlayers });
+  });
+});*/
+
+
+// Add this route in your server.js file
+app.get('/create-account', (req, res) => {
+  res.render('create-account');
+});
+
+// Add this route in your server.js file
+app.post('/process-account', (req, res) => {
+  const { username } = req.body;
+
+  // Check if the username already exists
+  const checkUsernameSQL = 'SELECT * FROM users WHERE username = ?';
+
+  connection.query(checkUsernameSQL, [username], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking username:', checkErr);
+      res.sendStatus(500); // Internal Server Error
+      return;
+    }
+
+    // If username already exists, inform the user
+    if (checkResults.length > 0) {
+      res.send('Username is taken. Please choose another username.');
+    } else {
+      // If username is available, proceed with insertion
+      const updateSQL = 'INSERT INTO users (username) VALUES (?)';
+
+      connection.query(updateSQL, [username], (updateErr, result) => {
+        if (updateErr) {
+          console.error('Error updating username:', updateErr);
+          res.sendStatus(500); // Internal Server Error
+          return;
+        }
+
+        // Redirect to the home page or another relevant page after updating
+        res.redirect('/');
+      });
+    }
+  });
+});
+
+// Your login page route
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+// Login form submission
+app.post('/process-login', (req, res) => {
+  const { username } = req.body;
+
+  // Check if the username already exists
+  const checkUsernameSQL = 'SELECT * FROM users WHERE username = ?';
+
+  connection.query(checkUsernameSQL, [username], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking username:', checkErr);
+      res.sendStatus(500); // Internal Server Error
+      return;
+    }
+
+    // If username already exists, inform the user
+    if (checkResults.length > 0) {
+      // If username is available, proceed with insertion
+      currentUser = username;
+      console.log(currentUser);
+      // Redirect to the home page or another relevant page
+      res.redirect('http://35.209.213.54/');
+    } else {
+      // If username not in data
+      res.send('Username does not exist. Please create an account.');
+    }
+  });
+});
+
+// Route to handle logout
+app.get('/logout', (req, res) => {
+  // Set currentUser to null on logout
+  currentUser = null;
+  console.log(currentUser);
+  res.redirect('http://35.209.213.54/');
+});
+
+app.get('/delete-account', (req, res) => {
+  res.render('delete-account');
+});
+
+// Handle the deletion of the current user's account
+app.post('/delete-account-process', (req, res) => {
+  const username = currentUser; // Assuming currentUser is the username to be deleted
+
+  // Check if the username exists
+  const checkUsernameSQL = 'SELECT * FROM users WHERE username = ?';
+
+  connection.query(checkUsernameSQL, [username], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking username:', checkErr);
+      res.sendStatus(500); // Internal Server Error
+      return;
+    }
+
+    // If username exists, proceed with deletion
+    if (checkResults.length > 0) {
+      // Delete the user from the User table
+      const deleteSQL = 'DELETE FROM users WHERE username = ?';
+
+      connection.query(deleteSQL, [username], (deleteErr, result) => {
+        if (deleteErr) {
+          console.error('Error deleting account:', deleteErr);
+          res.sendStatus(500); // Internal Server Error
+          return;
+        }
+
+        // Redirect to the home page or another relevant page after deletion
+        currentUser = null; // Set currentUser to null after deletion
+	console.log(currentUser);
+        res.redirect('http://35.209.213.54/');
+      });
+    } else {
+      // If username not found, inform the user
+      res.send('Username not found.');
+    }
+  });
+});
+/*app.get('/dashboard', (req, res) => {
+  // Retrieve selected filters from the request query
+  const { gold, silver, bronze, nocFilter } = req.query;
+
+  // Build the WHERE clause based on the selected filters
+  const whereClause = [];
+  if (gold) whereClause.push('Gold > 0');
+  if (silver) whereClause.push('Silver > 0');
+  if (bronze) whereClause.push('Bronze > 0');
+  if (nocFilter) whereClause.push(NOC = '${nocFilter}'); // Add NOC filter
+
+  let query = 'SELECT NOC, Gold, Silver, Bronze FROM countrymedal';
+  if (whereClause.length > 0) {
+    query += ' WHERE ' + whereClause.join(' AND ');
+  }
+
+  // Fetch the number of medals won per country based on the selected filters
+  connection.query(query, (err, medalData) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    // Log medalData
+    console.log('Medal Data:', medalData);
+
+    // Render dashboard.ejs with filtered medal data
+    res.render('dashboard', { medalData, selectedFilters: { gold, silver, bronze, nocFilter } });
+  });
+});*/
+
+// Add this route in your server.js file to handle the button click
+app.get('/dashboard-button', (req, res) => {
+  // Redirect to the dashboard page
+  res.redirect('/dashboard');
+});
+
+// Inside your route for '/dashboard2'
+app.get('/dashboard2-button', (req, res) => {
+  res.redirect('dashboard2');
+});
+
+app.get('/dashboard', (req, res) => {
+  // Execute the SQL query to get the top 3 teams by total runs for the specified year
+  const year = 2023; // Specify the desired season (e.g., 2023)
+
+  const query = `
+    SELECT t.Teams, SUM(c.RunScore) AS TotalRuns
+    FROM team t
+    JOIN batting_bowling_combined c ON t.Teams = c.TeamName
+    WHERE t.Year = ?
+    GROUP BY t.Teams
+    ORDER BY TotalRuns DESC
+    LIMIT 3;
+  `;
+
+  connection.query(query, [year], (err, results) => {
+    if (err) {
+      console.error('Error fetching dashboard data:', err);
+      res.sendStatus(500); // Internal Server Error
+      return;
+    }
+
+    // Render the dashboard.ejs with the query results
+    res.render('dashboard', { teams: results });
+  });
+});
+
+app.get('/dashboard2', (req, res) => {
+  // Declare the variable before the query
+  var medalData;
+
+  // Fetch the number of medals won per country
+  connection.query('SELECT NOC, Gold, Silver, Bronze FROM countrymedal', (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    // Assign the result to the variable
+    medalData = result;
+
+    // Log medalData
+    console.log('Medal Data:', medalData);
+
+    // Render dashboard.ejs with medal data
+    res.render('dashboard2', { medalData });
+  });
+});
+
+async function createTop3TeamsProcedure() {
+  const stored_query = `
+    CREATE PROCEDURE GetTop3Teams()
+    BEGIN
+        -- Get the top 3 teams by total runs for the specified year
+        SELECT t.Teams, SUM(c.RunScore) AS TotalRuns
+        FROM team t
+        JOIN batting_bowling_combined c ON t.Teams = c.TeamName
+        WHERE t.Year = 2023 -- Specify the desired season (e.g., 2023)
+        GROUP BY t.Teams
+        ORDER BY TotalRuns DESC
+        LIMIT 3;
+    END;
+  `;
+
+  try {
+    await connection.promise().query(stored_query);
+    console.log('Top 3 teams stored procedure created successfully!');
+  } catch (error) {
+    console.error('Error creating top 3 teams stored procedure:', error);
+  }
+}
+
+// trigger function
+async function createTop3TeamsTrigger() {
+  const trigger_query = `
+    CREATE TRIGGER Top3TeamsTrigger
+    AFTER INSERT ON batting_bowling_combined
+    FOR EACH ROW
+    BEGIN
+        -- Call the stored procedure to update top 3 teams
+        CALL GetTop3Teams();
+    END;
+  `;
+
+  try {
+    await connection.promise().query(trigger_query);
+    console.log('Top 3 teams trigger created successfully!');
+  } catch (error) {
+    console.error('Error creating top 3 teams trigger:', error);
+  }
+}
+
+// Define a route for the "add_player" page
+app.get('/add_player', (req, res) => {
+  res.render('add_player'); // Assuming you have an add_player.ejs file
+});
+
+// Handle the form submission
+// Handle the form submission
+app.post('/update-table', (req, res) => {
+  const { fullName, teamName, runScore, wicketsTaken, strikeRate, economyRate } = req.body;
+
+  // Check if the player already exists in the table
+  const checkPlayerSQL = 'SELECT * FROM batting_bowling_combined WHERE FullName = ?';
+
+  connection.query(checkPlayerSQL, [fullName], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking player:', checkErr);
+      res.sendStatus(500); // Internal Server Error
+      return;
+    }
+
+    // If player already exists, inform the user
+    if (checkResults.length > 0) {
+      res.send('Player already exists. Please choose another player.');
+    } else {
+      // If player is not in the table, proceed with insertion
+      const insertPlayerSQL = `
+        INSERT INTO batting_bowling_combined (PlayerID, FullName, TeamName, RunScore, WicketsTaken, StrikeRate, EconomyRate)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      connection.query(
+        insertPlayerSQL,
+        [currPlayerID, fullName, teamName, runScore, wicketsTaken, strikeRate, economyRate],
+        (insertErr, result) => {
+          if (insertErr) {
+            console.error('Error inserting player:', insertErr);
+            res.sendStatus(500); // Internal Server Error
+            return;
+          }
+          currPlayerID = currPlayerID + 1;
+          console.log('Record inserted successfully');
+          res.redirect('/players'); // Redirect to the players page or another appropriate page
+        }
+      );
+    }
+  });
+});
+
+app.listen(80, () => {
+  console.log('SportsUniverse app is running on port 80');
+});

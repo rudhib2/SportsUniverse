@@ -1,0 +1,40 @@
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Player</title>
+</head>
+<body>
+
+  <header>
+    <h1>Add Player</h1>
+  </header>
+
+    <div class="add-player-form">
+    <form action="/update-table" method="post">
+      <label for="fullName">Full Name:</label>
+      <input type="text" id="fullName" name="fullName" required>
+
+      <label for="teamName">Team Name:</label>
+      <input type="text" id="teamName" name="teamName" required>
+
+      <label for="runScore">Run Score:</label>
+      <input type="number" id="runScore" name="runScore" required>
+
+      <label for="wicketsTaken">Wickets Taken:</label>
+      <input type="number" id="wicketsTaken" name="wicketsTaken" required>
+
+      <label for="strikeRate">Strike Rate:</label>
+      <input type="text" id="strikeRate" name="strikeRate" required>
+
+      <label for="economyRate">Economy Rate:</label>
+      <input type="text" id="economyRate" name="economyRate" required>
+
+      <button type="submit" name="submit">Submit</button>
+    </form>
+  </div>
+
+</body>
+</html>

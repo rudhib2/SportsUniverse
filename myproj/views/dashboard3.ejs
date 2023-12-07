@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: center;
+    }
+
+    li {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      margin: 10px;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    ul.nav-list {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+
+    li.nav-item {
+      float: left;
+    }
+
+    li.nav-item a {
+      display: block;
+      color: black;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li.nav-item a:hover {
+      background-color: transparent;
+    }
+
+    table {
+      width: 60%; 
+      margin: auto;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="/home">Home</a></li>
+      <li class="nav-item"><a href="/teams">Teams</a></li>
+      <li class="nav-item"><a href="/athlete">Athletes</a></li>
+      <li class="nav-item"><a href="/players">Players</a></li>
+      <li class="nav-item"><a href="/dashboard">Dashboard</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <h1>Dashboard</h1>
+  </header>
+
+  <h2>Top 15 Batting Averages Dashboard(2023)</h2>
+  <section>
+  <table>
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Team</th>
+        <th>Captain</th>
+        <th>Total Players</th>
+        <th>Total Runs Scored</th>
+        <th>Total Wickets Taken</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% data.forEach(team => { %>
+        <tr>
+          <td><%= team.Year %></td>
+          <td><%= team.Teams %></td>
+          <td><%= team.Captain %></td>
+          <td><%= team.TotalPlayers %></td>
+          <td><%= team.TotalRunsScored %></td>
+          <td><%= team.TotalWicketsTaken %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</section>
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,293 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
+const mysql = require('mysql2');
+
+const app = express();
+
+// Set up MySQL connection
+const connection = mysql.createConnection({
+  host: '35.224.38.200',
+  user: 'root',
+  password: 'Ishanvi1234',
+  database: 'SportsUniverse2023'
+});
+
+connection.connect(err => {
+  if (err) {
+    console.error('Error connecting to the database:', err.stack);
+    return;
+  }
+  console.log('Connected to the database');
+});
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.render('index', { title: 'SportsUniverse: Your Ultimate Sports Companion' });
+});
+
+app.get('/athlete', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all athletes
+    connection.query('SELECT AthleteID, Name FROM athlete', (err, athletes) => {
+      if (err) throw err;
+      res.render('athletes1', { athletes, searchResults: [] });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT AthleteID, Name FROM athlete WHERE Name LIKE ?', [searchQuery], (err, searchResults) => {
+      if (err) throw err;
+      res.render('athletes1', { athletes: [], searchResults: searchResults || [] });
+    });
+  }
+});
+
+app.get('/athlete/:id', (req, res) => {
+  const athleteId = req.params.id;
+  console.log('Athlete ID:', athleteId);
+
+  // Fetch athlete details based on ID
+  connection.query('SELECT * FROM athlete WHERE AthleteID = ?', [athleteId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).send('Athlete not found');
+      return;
+    }
+
+    // Render athlete2.ejs with athlete details
+    res.render('athlete2', { athlete: result[0] }); // Pass the athlete object to the template
+  });
+});
+
+app.get('/players', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all distinct players
+    connection.query('SELECT DISTINCT FullName FROM batting_bowling_combined', (err, players) => {
+      if (err) throw err;
+      res.render('players', { players, searchResults: [], search });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT DISTINCT FullName FROM batting_bowling_combined WHERE FullName LIKE ?', [searchQuery], (err, searchResults) => {
+      if (err) throw err;
+      res.render('players', { players: [], searchResults: searchResults || [], search });
+    });
+  }
+});
+
+
+app.get('/player/:name', (req, res) => {
+  const playerName = req.params.name;
+
+  // Fetch all teams and stats for the selected player
+  connection.query('SELECT * FROM batting_bowling_combined WHERE FullName = ?', [playerName], (err, results) => {
+    if (err) throw err;
+
+    if (results.length === 0) {
+      res.status(404).send('Player not found');
+      return;
+    }
+
+    res.render('player', { player: results[0], teams: results });
+  });
+});
+
+app.get('/teams', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all teams with NOC and Discipline
+    connection.query('SELECT TeamID, NOC, Discipline FROM mytable', (err, teams) => {
+      if (err) throw err;
+      res.render('teams', { teams, searchResults: [] });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT TeamID, NOC, Discipline FROM mytable WHERE NOC LIKE ? OR Discipline LIKE ?', [searchQuery, searchQuery], (err, searchResults) => {
+    if (err) throw err;
+      res.render('teams', { teams: [], searchResults: searchResults || [] });
+    });
+  }
+});
+
+app.get('/team/:id', (req, res) => {
+  const teamId = req.params.id;
+
+  // Fetch all details for the selected team
+  connection.query('SELECT * FROM mytable WHERE TeamID = ?', [teamId], (err, results) => {
+    if (err) throw err;
+
+    if (results.length === 0) {
+      res.status(404).send('Team not found');
+      return;
+    }
+
+    res.render('team', { team: results[0] });
+  });
+});
+
+
+app.get('/home', (req, res) => {
+  res.redirect('http://35.209.13.54/');
+});
+
+app.get('/players', (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    // If no search query, fetch all distinct players
+    connection.query('SELECT DISTINCT FullName FROM batting_bowling_combined', (err, players) => {
+      if (err) throw err;
+      res.render('players', { players, searchResults: [], search });
+    });
+  } else {
+    // If there is a search query, perform the search
+    const searchQuery = '%' + search + '%'; // Add wildcard for partial matching
+
+    connection.query('SELECT DISTINCT FullName FROM batting_bowling_combined WHERE FullName LIKE ?', [searchQuery], (err, searchResults) => {
+      if (err) throw err;
+      res.render('players', { players: [], searchResults, search });
+    });
+  }
+});
+
+
+app.get('/player/:name/chart', (req, res) => {
+  const playerName = req.params.name;
+
+  // Fetch data for the chart
+  connection.query('SELECT TeamName, RunScore FROM batting_bowling_combined WHERE FullName = ?', [playerName], (err, teamData) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    // Log teamData
+    console.log('Team Data:', teamData);
+
+    // Render chart.ejs with chart data
+    res.render('chart', { playerName, teamData });
+  });
+});
+app.get('/player/:name/chart', (req, res) => {
+  const playerName = req.params.name;
+
+  // Fetch data for the chart
+  connection.query('SELECT TeamName, RunScore FROM batting_bowling_combined WHERE FullName = ?', [playerName], (err, teamData) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    // Log teamData
+    console.log('Team Data:', teamData);
+
+    // Render chart.ejs with chart data
+    res.render('chart', { playerName, teamData });
+  });
+});
+
+// Add this route in your server.js file
+app.get('/create-account', (req, res) => {
+  res.render('create-account');
+});
+
+// Add this route in your server.js file
+app.post('/process-account', (req, res) => {
+  const { username } = req.body;
+
+  // Check if the username already exists
+  const checkUsernameSQL = 'SELECT * FROM users WHERE username = ?';
+
+  connection.query(checkUsernameSQL, [username], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking username:', checkErr);
+      res.sendStatus(500); // Internal Server Error
+      return;
+    }
+
+    // If username already exists, inform the user
+    if (checkResults.length > 0) {
+      res.send('Username is taken. Please choose another username.');
+    } else {
+      // If username is available, proceed with insertion
+      const updateSQL = 'INSERT INTO users (username) VALUES (?)';
+
+      connection.query(updateSQL, [username], (updateErr, result) => {
+        if (updateErr) {
+          console.error('Error updating username:', updateErr);
+          res.sendStatus(500); // Internal Server Error
+          return;
+        }
+
+        // Redirect to the home page or another relevant page after updating
+        res.redirect('/');
+      });
+    }
+  });
+});
+
+// Your login page route
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+// Login form submission
+app.post('/process-login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Check if the provided username exists in the "users" table
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+
+    if (result.rows.length > 0) {
+      // User found, perform additional authentication if needed
+      // For simplicity, let's assume any password is valid for now
+      // In a real application, you would check the password against the user's hashed password in the database
+      res.redirect('/');
+    } else {
+      // User not found, redirect to a login failure page or display an error message
+      res.redirect('/login-failure');
+    }
+  } catch (error) {
+    console.error('Error executing SQL query:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Route for a successful login
+app.get('/login-success', (req, res) => {
+  res.send('Login successful!');
+});
+
+// Route for a failed login
+app.get('/login-failure', (req, res) => {
+  res.send('Login unsuccessful. Please check your username and password.');
+});
+
+app.listen(80, () => {
+  console.log('SportsUniverse app is running on port 80');
+});

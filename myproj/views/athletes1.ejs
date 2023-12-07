@@ -1,0 +1,134 @@
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athletes</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: left;
+    }
+
+    li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li a:hover {
+      background-color: #111;
+    }
+
+    main {
+      margin: 20px;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #111;
+    }
+
+    /* Search Bar styles */
+    .search-bar {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+    }
+
+    input[type="submit"] {
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/teams">Teams</a></li>
+      <li><a href="/athlete">Athletes</a></li>
+      <li><a href="/players">Players</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <form action="/athlete" method="get">
+        <input type="text" name="search" placeholder="Search by name">
+        <input type="submit" value="Search">
+      </form>
+    </div>
+
+    <h1>Athletes</h1>
+    <% if (searchResults && searchResults.length > 0) { %>
+      <% searchResults.forEach(athlete => { %>
+        <button onclick="window.location.href='/athlete/<%= athlete.AthleteID %>'">
+          <%= athlete.Name %>
+        </button>
+      <% }); %>
+    <% } else { %>
+      <% athletes.forEach(athlete => { %>
+        <button onclick="window.location.href='/athlete/<%= athlete.AthleteID %>'">
+          <%= athlete.Name %>
+        </button>
+      <% }); %>
+    <% } %>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Details</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: left;
+    }
+
+    li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li a:hover {
+      background-color: #111;
+    }
+
+    main {
+      margin: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    ul.team-details {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li.team-info {
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    li.team-info strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/teams">Teams</a></li>
+      <li><a href="/athlete">Athletes</a></li>
+      <li><a href="/players">Players</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h2>Team Details</h2>
+    <ul class="team-details">
+      <li class="team-info"><strong>NOC:</strong> <%= team.NOC %></li>
+      <li class="team-info"><strong>Discipline:</strong> <%= team.Discipline %></li>
+      <li class="team-info"><strong>Event:</strong> <%= team.Event %></li>
+      <li class="team-info"><strong>Coaches:</strong> <%= team.Coaches %></li>
+    </ul>
+  </main>
+
+</body>
+</html>

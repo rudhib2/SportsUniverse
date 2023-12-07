@@ -1,0 +1,54 @@
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
+const mysql = require('mysql2');
+
+const app = express();
+
+// Set up MySQL connection
+const connection = mysql.createConnection({
+  host: '35.224.38.200',
+  user: 'root',
+  password: 'Ishanvi1234',
+  database: 'SportsUniverse2023'
+});
+
+connection.connect(err => {
+  if (err) {
+    console.error('Error connecting to the database:', err.stack);
+    return;
+  }
+  console.log('Connected to the database');
+});
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', function(req, res) {
+  res.render('index', { title: 'SportsUniverse: Your Ultimate Sports Companion' });
+});
+
+app.get('/athlete', (req, res) => {
+  connection.query('SELECT * FROM athlete', (err, results) => {
+    if (err) throw err;
+    res.render('athlete', { athlete: results }); // Updated to 'athlete.ejs'
+  });
+});
+//const PORT = process.env.PORT || 80;
+
+app.get('/players', (req, res) => {
+  // Fetch and render a list of players with combined batting and bowling statistics
+  connection.query('SELECT * FROM batting_bowling_combined', (err, results) => {
+    if (err) throw err;
+    res.render('players', { players: results });
+  });
+});
+
+app.listen(80, function() {
+  console.log(`SportsUniverse app is running on port 80');
+});
